@@ -16,6 +16,9 @@ unzip -q "$DIR/files_to_reorganize.zip" -d "$WORK_DIR"
 
 cd "$WORK_DIR"
 
+# Remove README.md so only the 30 text files are reorganized and hashed
+rm -f README.md
+
 # Step 1 & 2: Process files safely handling spaces, Unicode, and Windows CRLF
 find . -type f -name "*.txt" | while IFS= read -r file; do
   # Extract category from first matching line
@@ -33,9 +36,6 @@ done
 # Step 3: Clean up empty directories
 find . -type d -empty -delete
 
-# Step 4: Generate and display verification hash
-echo "Verification Hash (with README.md):"
+# Step 4: Generate and display verification hash for the 30 reorganized files
+echo "Verification Hash:"
 find . -type f | LC_ALL=C sort | sha256sum | awk '{print $1}'
-
-echo "Verification Hash (if README.md excluded):"
-find . -type f | grep -v "README.md" | LC_ALL=C sort | sha256sum | awk '{print $1}'

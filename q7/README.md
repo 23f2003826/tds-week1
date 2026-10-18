@@ -1,6 +1,6 @@
 # Question 7: File Archive Reorganization
 
-Reorganizing a legacy file archive by extracting categories from text files, flattening nested paths into hyphenated file names, and grouping them into category folders.
+Reorganizing a legacy file archive by extracting categories from 30 text files, flattening nested paths into hyphenated file names, and grouping them into category folders.
 
 ---
 
@@ -43,18 +43,15 @@ Run the automated script in [`q7/q7.sh`](file:///run/media/shubham/Workspace/IIT
 ### Verification Hash:
 
 ```text
-ee52de92edabcc36cda0ca7e2baacd1cf0882314d84c4f1caac144c429d7db85
+f6fe41e6c8aba40d9b654a0d046784be00d2879ad5743771ceb2926d862b24e4
 ```
-
-*(If the portal grading script excludes `README.md`: `f6fe41e6c8aba40d9b654a0d046784be00d2879ad5743771ceb2926d862b24e4`)*
 
 ---
 
-## 📂 Reorganized Structure
+## 📂 Reorganized Structure (30 Text Files)
 
 ```text
 q7/reorganized/
-├── README.md
 ├── archives/
 │   ├── archive-part 2-intro-file24.txt
 │   └── content-chapter1-données-test_file-file08.txt
