@@ -160,47 +160,112 @@ def execute_sql(sql: str) -> Any:
         return round(val, 2)
     return val
 
+PRODUCTS = ['Air Fryer', 'Blender', 'Grinder', 'Juicer', 'Kettle', 'Mixer', 'Rice Cooker', 'Toaster']
+REGIONS = ['Central', 'East', 'North', 'South', 'West']
+MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
 def fast_rule_based_sql(question: str) -> Optional[str]:
     """Instant regex pattern matcher for common questions to save LLM tokens."""
-    q = question.lower()
+    ql = question.lower()
     
-    # 1. Total revenue by region and month/year
-    # e.g., "What was the total revenue in USD from the North region in March 2026?"
-    m = re.search(r'revenue.*?(north|south|east|west|central).*?(january|february|march|april|may|june|july|august|september|october|november|december).*?(\d{4})', q)
-    if m:
-        region = m.group(1).capitalize()
-        month = m.group(2).capitalize()
-        year = int(m.group(3))
-        return f"SELECT ROUND(SUM(revenue_usd), 2) FROM orders WHERE region = '{region}' AND month_name = '{month}' AND year = {year};"
+    # Extract entities
+    prod = next((p for p in PRODUCTS if p.lower() in ql), None)
+    region = next((r for r in REGIONS if re.search(r'\b' + r.lower() + r'\b', ql)), None)
+    month = next((m for m in MONTHS if m.lower() in ql), None)
+    qm = re.search(r'\bq([1-4])\b', ql)
+    quarter = f"Q{qm.group(1)}" if qm else None
+    ym = re.search(r'\b(202[0-9])\b', ql)
+    year = int(ym.group(1)) if ym else None
+    cust_m = re.search(r'\b(c\d{4})\b', ql)
+    customer = cust_m.group(1).upper() if cust_m else None
 
-    # Reversed: month first then region
-    m = re.search(r'revenue.*?(january|february|march|april|may|june|july|august|september|october|november|december).*?(\d{4}).*?(north|south|east|west|central)', q)
-    if m:
-        month = m.group(1).capitalize()
-        year = int(m.group(2))
-        region = m.group(3).capitalize()
-        return f"SELECT ROUND(SUM(revenue_usd), 2) FROM orders WHERE region = '{region}' AND month_name = '{month}' AND year = {year};"
+    # Base filters for general queries
+    filters = []
+    if prod: filters.append(f"product = '{prod}'")
+    if region: filters.append(f"region = '{region}'")
+    if month: filters.append(f"month_name = '{month}'")
+    if quarter: filters.append(f"quarter = '{quarter}'")
+    if year: filters.append(f"year = {year}")
+    if customer: filters.append(f"customer = '{customer}'")
+    where_clause = (" WHERE " + " AND ".join(filters)) if filters else ""
 
-    # 2. Total refund amount in month/year
-    # e.g., "What was the total refund amount in USD in February 2026?"
-    m = re.search(r'refund.*?(january|february|march|april|may|june|july|august|september|october|november|december).*?(\d{4})', q)
-    if m:
-        month = m.group(1).capitalize()
-        year = int(m.group(2))
-        return f"SELECT ROUND(SUM(refund_usd), 2) FROM orders WHERE month_name = '{month}' AND year = {year};"
+    # 1. "Which product" / "What product"
+    if re.search(r'(which|what) product', ql):
+        if 'refund' in ql:
+            return "SELECT product FROM orders WHERE status = 'refunded' GROUP BY product ORDER BY SUM(refund_usd) DESC LIMIT 1;"
+        elif any(k in ql for k in ['unit', 'sold', 'quantity', 'volume']):
+            if any(k in ql for k in ['least', 'lowest', 'fewest']):
+                return "SELECT product FROM orders WHERE status = 'paid' GROUP BY product ORDER BY SUM(qty) ASC LIMIT 1;"
+            return "SELECT product FROM orders WHERE status = 'paid' GROUP BY product ORDER BY SUM(qty) DESC LIMIT 1;"
+        else: # revenue
+            if any(k in ql for k in ['least', 'lowest']):
+                return "SELECT product FROM orders WHERE status = 'paid' GROUP BY product ORDER BY SUM(revenue_usd) ASC LIMIT 1;"
+            return "SELECT product FROM orders WHERE status = 'paid' GROUP BY product ORDER BY SUM(revenue_usd) DESC LIMIT 1;"
 
-    # 3. Product sales quantity
-    # e.g. "How many units of Blender were sold?"
-    m = re.search(r'(how many|total|units).*?(mixer|grinder|kettle|toaster|air fryer|juicer|blender|rice cooker).*?(sold|purchased|ordered)', q)
-    if m:
-        product_map = {
-            "mixer": "Mixer", "grinder": "Grinder", "kettle": "Kettle",
-            "toaster": "Toaster", "air fryer": "Air Fryer", "juicer": "Juicer",
-            "blender": "Blender", "rice cooker": "Rice Cooker"
-        }
-        prod = product_map.get(m.group(2).lower())
+    # 2. "Which region" / "What region"
+    if re.search(r'(which|what) region', ql):
+        if 'refund' in ql:
+            return "SELECT region FROM orders WHERE status = 'refunded' GROUP BY region ORDER BY SUM(refund_usd) DESC LIMIT 1;"
+        else:
+            if any(k in ql for k in ['least', 'lowest']):
+                return "SELECT region FROM orders WHERE status = 'paid' GROUP BY region ORDER BY SUM(revenue_usd) ASC LIMIT 1;"
+            return "SELECT region FROM orders WHERE status = 'paid' GROUP BY region ORDER BY SUM(revenue_usd) DESC LIMIT 1;"
+
+    # 3. "Which customer" / "What customer"
+    if re.search(r'(which|what) customer', ql):
+        if 'refund' in ql:
+            return "SELECT customer FROM orders WHERE status = 'refunded' GROUP BY customer ORDER BY SUM(refund_usd) DESC LIMIT 1;"
+        else:
+            return "SELECT customer FROM orders WHERE status = 'paid' GROUP BY customer ORDER BY SUM(revenue_usd) DESC LIMIT 1;"
+
+    # 4. "Which month" / "What month"
+    if re.search(r'(which|what) month', ql):
+        if 'refund' in ql:
+            return "SELECT month_name FROM orders WHERE status = 'refunded' GROUP BY month, month_name ORDER BY SUM(refund_usd) DESC LIMIT 1;"
+        else:
+            return "SELECT month_name FROM orders WHERE status = 'paid' GROUP BY month, month_name ORDER BY SUM(revenue_usd) DESC LIMIT 1;"
+
+    # 5. Units sold / quantity
+    if 'unit' in ql or ('how many' in ql and any(k in ql for k in ['sold', 'ordered', 'purchased'])):
         if prod:
-            return f"SELECT SUM(qty) FROM orders WHERE product = '{prod}' AND status = 'paid';"
+            base_f = [f"product = '{prod}'", "status = 'paid'"]
+            if month: base_f.append(f"month_name = '{month}'")
+            if quarter: base_f.append(f"quarter = '{quarter}'")
+            if year: base_f.append(f"year = {year}")
+            if region: base_f.append(f"region = '{region}'")
+            return f"SELECT SUM(qty) FROM orders WHERE {' AND '.join(base_f)};"
+
+    # 6. Customer count / unique customers
+    if 'unique customer' in ql or 'how many customer' in ql:
+        base_f = ["status = 'paid'"] if any(k in ql for k in ['paid', 'purchase', 'order']) else []
+        if region: base_f.append(f"region = '{region}'")
+        wh = (" WHERE " + " AND ".join(base_f)) if base_f else ""
+        return f"SELECT COUNT(DISTINCT customer) FROM orders{wh};"
+
+    # 7. Order counts
+    if re.search(r'(how many|total).*?orders', ql):
+        if 'refund' in ql:
+            base_f = ["status = 'refunded'"]
+        elif 'void' in ql:
+            base_f = ["status = 'void'"]
+        elif 'paid' in ql:
+            base_f = ["status = 'paid'"]
+        else:
+            base_f = []
+        if region: base_f.append(f"region = '{region}'")
+        if customer: base_f.append(f"customer = '{customer}'")
+        if month: base_f.append(f"month_name = '{month}'")
+        if year: base_f.append(f"year = {year}")
+        wh = (" WHERE " + " AND ".join(base_f)) if base_f else ""
+        return f"SELECT COUNT(*) FROM orders{wh};"
+
+    # 8. Refunds
+    if 'refund' in ql:
+        return f"SELECT ROUND(SUM(refund_usd), 2) FROM orders{where_clause};"
+
+    # 9. Revenue / Spent / Amount
+    if any(k in ql for k in ['revenue', 'spend', 'spent', 'amount']):
+        return f"SELECT ROUND(SUM(revenue_usd), 2) FROM orders{where_clause};"
 
     return None
 
