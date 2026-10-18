@@ -27,6 +27,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.responses import FileResponse
+
 # Root status page to verify your service is online
 @app.get("/")
 def home():
@@ -34,9 +36,15 @@ def home():
         "status": "online",
         "service": "TDS Week 1 Service Gateway",
         "endpoints": {
-            "q6": "/effective-config"
+            "q6": "/effective-config",
+            "q13": "/submission.tar.gz"
         }
     }
+
+@app.get("/submission.tar.gz")
+def get_submission():
+    tar_path = ROOT_DIR / "submission.tar.gz"
+    return FileResponse(tar_path, media_type="application/gzip", filename="submission.tar.gz")
 
 # ==============================================================================
 # Question 6 Routes:
