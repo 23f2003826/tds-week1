@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shubham Kumar | TDS Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --accent-color: #3b82f6;
+      --accent-hover: #60a5fa;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --tag-bg: #1e293b;
+      --tag-border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--accent-hover);
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 9999px;
+      padding: 0.25rem 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .contact-box {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      width: fit-content;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .contact-box strong {
+      color: var(--text-main);
+    }
+
+    .contact-box a {
+      color: var(--accent-hover);
+      text-decoration: none;
+    }
+
+    .contact-box a:hover {
+      text-decoration: underline;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .card h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      flex-grow: 1;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      color: var(--text-muted);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge">IIT Madras • Tools in Data Science</span>
+      <h1>Shubham Kumar</h1>
+      <p class="subtitle">Data Science, DevOps & Software Engineering Portfolio</p>
+      
+      <div class="contact-box">
+        <span>📧 Email:</span>
+        <strong><!--email_off-->23f2003826@ds.study.iitm.ac.in<!--/email_off--></strong>
+      </div>
+    </header>
+
+    <main>
+      <h2 class="section-title">🚀 Week 1 Projects & Solutions</h2>
+      
+      <div class="grid">
+        <!-- Q6 -->
+        <div class="card">
+          <div>
+            <h3>Config Layer Microservice</h3>
+            <p>FastAPI service that merges five configuration layers (defaults, YAML, .env, OS env, and dynamic query-string overrides) with secret masking and CORS.</p>
+          </div>
+          <div class="tags">
+            <span class="tag">FastAPI</span>
+            <span class="tag">Python</span>
+            <span class="tag">Render</span>
+            <span class="tag">Docker</span>
+          </div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="card">
+          <div>
+            <h3>Archive Reorganization Pipeline</h3>
+            <p>Shell pipeline restructuring legacy documents by category tags, flattening nested structures, handling UTF-8 characters, spaces, and deterministic hashing.</p>
+          </div>
+          <div class="tags">
+            <span class="tag">Bash</span>
+            <span class="tag">POSIX</span>
+            <span class="tag">SHA256</span>
+          </div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="card">
+          <div>
+            <h3>Regional Performance Analytics</h3>
+            <p>Data processing pipeline filtering quarterly transaction archives by geographic and temporal dimensions to calculate regional sales performance metrics.</p>
+          </div>
+          <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">CSV</span>
+            <span class="tag">Analytics</span>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="card">
+          <div>
+            <h3>Log Export JSON Repair</h3>
+            <p>Syntax validation and automated diagnostics for corrupted large-scale JSON log streams, resolving missing delimiters and format anomalies.</p>
+          </div>
+          <div class="tags">
+            <span class="tag">JSON</span>
+            <span class="tag">Python Tooling</span>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="card">
+          <div>
+            <h3>Markdown Standardization</h3>
+            <p>Formatting pipeline enforcing unified markdown standards and deterministic cryptographic checksums across technical documentation.</p>
+          </div>
+          <div class="tags">
+            <span class="tag">Prettier</span>
+            <span class="tag">Node.js</span>
+            <span class="tag">CI/CD</span>
+          </div>
+        </div>
+
+        <!-- Q9 -->
+        <div class="card">
+          <div>
+            <h3>Portfolio & Static Deployment</h3>
+            <p>Production portfolio served via GitHub Pages edge network with Cloudflare email obfuscation safeguards and responsive modern architecture.</p>
+          </div>
+          <div class="tags">
+            <span class="tag">GitHub Pages</span>
+            <span class="tag">HTML5/CSS3</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>IIT Madras TDS 2026 • Contact: <!--email_off-->23f2003826@ds.study.iitm.ac.in<!--/email_off--></p>
+    </footer>
+  </div>
+</body>
+</html>

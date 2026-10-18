@@ -12,3 +12,4 @@ if [ ! -f "$DIR/sales_data/sales_data.csv" ]; then
 fi
 
 python3 "$DIR/solution.py"
+
