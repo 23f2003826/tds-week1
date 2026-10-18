@@ -92,12 +92,16 @@ def load_env_file() -> dict[str, Any]:
     Special case requirement:
       "Alias: NUM_WORKERS in the .env layer maps to the workers key."
     """
-    env_file = BASE_DIR / ".env"
-    if not env_file.is_file():
-        env_file = Path(".env")
+    candidates = [
+        BASE_DIR / ".env",
+        Path.cwd() / ".env",
+        BASE_DIR.parent / ".env",
+        Path(".env"),
+    ]
+    env_file = next((p for p in candidates if p.is_file()), None)
 
     result = {}
-    if env_file.is_file():
+    if env_file and env_file.is_file():
         try:
             with open(env_file, "r", encoding="utf-8") as f:
                 for line in f:
