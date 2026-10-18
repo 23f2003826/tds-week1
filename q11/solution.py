@@ -48,3 +48,4 @@ def compute_top5_cosine():
 if __name__ == "__main__":
     res = compute_top5_cosine()
     print(json.dumps(res, indent=2))
+

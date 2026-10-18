@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+echo "Fetching challenge..."
+CHALLENGE_RAW=$(curl -s "https://exam.sanand.workers.dev/questionData?email=23f2003826%40ds.study.iitm.ac.in&quizSign=mT%2FVgcoJlvZhxOOJyxtdDBtugn%2FJ%2BQRam7dw3U00lXxF3nLm70%2BCgaFo%2FUQY%2BhZ%2Baia5sV4CK%2F9N8smazXFxQniakjYzLRw2%2BF82F6ZlZkhrpDjNNvJCuQeoZZegdSHApYbOsLgBUYQs%2Bijp0xvwGRjCk1OYic4aKGIuGZYFoi1WqJ4MTfDE7XXAd%2FtOgpNsiRgni6hbG97Tcy%2BAcjuhD0XHqNvvkaLq4mpukErQOwgSJCuQZ4bwmpSGmV5QuGsEgorWQxkkWNnUs9y97eI7nkmP9l4riLn1afxZDgY3g3XKojlkEvzBIYUuJWkOd71WBwfKfHCGvnnfHgMIR7JSYw%3D%3D&questionId=q-termlog-rec-server")
+
+echo "Raw output:"
+echo "$CHALLENGE_RAW"
+
+CIPHERTEXT=$(echo "$CHALLENGE_RAW" | grep -v '^#' | tr -d ' \r\n')
+echo "Ciphertext: $CIPHERTEXT"
+
+echo -n "Decoded code: "
+echo "$CIPHERTEXT" | xxd -r -p | rev | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+

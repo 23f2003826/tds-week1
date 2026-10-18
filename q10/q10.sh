@@ -26,3 +26,4 @@ echo "Recovered Token: $TOKEN"
 
 echo -e "\n--- JSON Submission ---"
 cat "$DIR/solution.json"
+
