@@ -38,7 +38,8 @@ def home():
         "endpoints": {
             "q6": "/effective-config",
             "q13": "/submission.tar.gz",
-            "q14": "/mcp"
+            "q14": "/mcp",
+            "q15": "/ledger"
         }
     }
 
@@ -60,6 +61,14 @@ app.include_router(q6_app.router)
 # ==============================================================================
 from q14.mcp_server import router as q14_router
 app.include_router(q14_router)
+
+# ==============================================================================
+# Question 15 Routes:
+# Acme Order Ledger Agent accessible at https://<your-app>.onrender.com/ledger
+# ==============================================================================
+from q15.agent import router as q15_router
+if q15_router is not None:
+    app.include_router(q15_router)
 
 if __name__ == "__main__":
     import uvicorn

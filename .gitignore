@@ -20,5 +20,6 @@ dist/
 *.egg-info/
 
 *.env
-.envq10/repo/
+.env
 q10/repo/
+*.db
