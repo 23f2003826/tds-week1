@@ -37,7 +37,8 @@ def home():
         "service": "TDS Week 1 Service Gateway",
         "endpoints": {
             "q6": "/effective-config",
-            "q13": "/submission.tar.gz"
+            "q13": "/submission.tar.gz",
+            "q14": "/mcp"
         }
     }
 
@@ -54,11 +55,11 @@ def get_submission():
 app.include_router(q6_app.router)
 
 # ==============================================================================
-# Future Questions (e.g. Question 7, Question 8):
-# When you have a new service, you can simply add:
-#   from q7.main import app as q7_app
-#   app.include_router(q7_app.router) # or app.mount("/q7", q7_app)
+# Question 14 Routes:
+# MCP Server endpoint accessible at https://<your-app>.onrender.com/mcp
 # ==============================================================================
+from q14.mcp_server import router as q14_router
+app.include_router(q14_router)
 
 if __name__ == "__main__":
     import uvicorn
