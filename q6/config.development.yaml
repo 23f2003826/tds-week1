@@ -1,0 +1,15 @@
+# ==============================================================================
+# Layer 2: Environment-Specific YAML Configuration
+#
+# Precedence Order:
+#   Defaults (Layer 1) -> config.<env>.yaml (Layer 2) -> .env (Layer 3) -> OS Env (Layer 4) -> CLI Overrides (Layer 5)
+#
+# These values override Layer 1 defaults, but can be overridden by:
+#   - .env file (Layer 3)
+#   - OS environment variables with APP_* prefix (Layer 4)
+#   - Query parameter overrides ?set=key=value (Layer 5)
+# ==============================================================================
+
+port: 8489
+workers: 12
+debug: true

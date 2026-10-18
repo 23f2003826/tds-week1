@@ -1,0 +1,12 @@
+# ==============================================================================
+# Python Dependencies for Question 6
+# ==============================================================================
+
+# FastAPI with standard extras (includes Pydantic, Starlette, and Uvicorn)
+fastapi[standard]>=0.115.0
+
+# YAML parser to read config.<env>.yaml
+pyyaml>=6.0
+
+# ASGI web server to serve the FastAPI application
+uvicorn>=0.30.0

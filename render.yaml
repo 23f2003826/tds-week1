@@ -1,0 +1,22 @@
+# ==============================================================================
+# Render Blueprint: Single Unified Free Service for All TDS Week 1 Questions
+#
+# Only 1 service is created, staying 100% within Render's free tier (no credit card/premium).
+#
+# Available Endpoints:
+#   - Root Status:       https://<your-app>.onrender.com/
+#   - Question 6:        https://<your-app>.onrender.com/effective-config
+#   - Future Questions:  added to main.py under this same service!
+# ==============================================================================
+
+services:
+  - type: web
+    name: tds-week1
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_PORT
+        value: "8144"
+      - key: APP_WORKERS
+        value: "11"

@@ -1,0 +1,1 @@
+npx -y prettier@3.4.2 ./README.md | sha256sum
