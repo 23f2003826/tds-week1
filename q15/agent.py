@@ -189,6 +189,38 @@ def fast_rule_based_sql(question: str) -> Optional[str]:
     if customer: filters.append(f"customer = '{customer}'")
     where_clause = (" WHERE " + " AND ".join(filters)) if filters else ""
 
+    # 0. Averages: 'average' / 'mean' / 'avg'
+    if any(k in ql for k in ['average', 'mean', 'avg']):
+        base_f = list(filters)
+        if 'unit price' in ql or 'price' in ql:
+            wh = (' WHERE ' + ' AND '.join(base_f)) if base_f else ''
+            return f"SELECT ROUND(AVG(unit_price), 2) FROM orders{wh};"
+        elif 'qty' in ql or 'quantity' in ql or 'units' in ql:
+            base_f.append("status = 'paid'")
+            wh = ' WHERE ' + ' AND '.join(base_f)
+            return f"SELECT ROUND(AVG(qty), 2) FROM orders{wh};"
+        elif 'refund' in ql:
+            base_f.append("status = 'refunded'")
+            wh = ' WHERE ' + ' AND '.join(base_f)
+            return f"SELECT ROUND(AVG(amount_usd), 2) FROM orders{wh};"
+        else: # average order value / paid order value
+            base_f.append("status = 'paid'")
+            wh = ' WHERE ' + ' AND '.join(base_f)
+            return f"SELECT ROUND(AVG(amount_usd), 2) FROM orders{wh};"
+
+    # 0.1 Max / Min / Highest / Lowest order value
+    if any(k in ql for k in ['highest', 'largest', 'maximum', 'max']) and 'order value' in ql:
+        base_f = list(filters)
+        base_f.append("status = 'paid'")
+        wh = ' WHERE ' + ' AND '.join(base_f)
+        return f"SELECT ROUND(MAX(amount_usd), 2) FROM orders{wh};"
+
+    if any(k in ql for k in ['lowest', 'smallest', 'minimum', 'min']) and 'order value' in ql:
+        base_f = list(filters)
+        base_f.append("status = 'paid'")
+        wh = ' WHERE ' + ' AND '.join(base_f)
+        return f"SELECT ROUND(MIN(amount_usd), 2) FROM orders{wh};"
+
     # 1. "Which product" / "What product"
     if re.search(r'(which|what) product', ql):
         if 'refund' in ql:
@@ -264,10 +296,23 @@ def fast_rule_based_sql(question: str) -> Optional[str]:
         return f"SELECT ROUND(SUM(refund_usd), 2) FROM orders{where_clause};"
 
     # 9. Revenue / Spent / Amount
-    if any(k in ql for k in ['revenue', 'spend', 'spent', 'amount']):
+    if any(k in ql for k in ['revenue', 'spend', 'spent', 'amount', 'order value', 'value']):
         return f"SELECT ROUND(SUM(revenue_usd), 2) FROM orders{where_clause};"
 
     return None
+
+def clean_gemini_sql(raw_text: str) -> str:
+    """Cleans markdown, quotes, and commentary from Gemini response."""
+    cleaned = re.sub(r"```(sql)?", "", raw_text, flags=re.IGNORECASE).strip()
+    cleaned = re.sub(r"```", "", cleaned).strip()
+    m = re.search(r"(SELECT\s+[\s\S]+?)(?:;|\n\s*\n|$)", cleaned, flags=re.IGNORECASE)
+    if m:
+        sql = m.group(1).strip()
+    else:
+        sql = cleaned.splitlines()[0].strip()
+    if not sql.endswith(";"):
+        sql += ";"
+    return sql
 
 def gemini_text_to_sql(question: str, api_key: str) -> str:
     """Uses Gemini 2.5 Flash to convert arbitrary natural language to SQLite query."""
@@ -307,7 +352,7 @@ SQL:"""
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
             "temperature": 0.0,
-            "maxOutputTokens": 500
+            "maxOutputTokens": 300
         }
     }
 
@@ -319,10 +364,7 @@ SQL:"""
     with urllib.request.urlopen(req, timeout=10) as resp:
         data = json.loads(resp.read().decode("utf-8"))
         sql_text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-        # Clean markdown codeblocks if present
-        sql_text = re.sub(r"^```(sql)?", "", sql_text, flags=re.IGNORECASE).strip()
-        sql_text = re.sub(r"```$", "", sql_text).strip()
-        return sql_text
+        return clean_gemini_sql(sql_text)
 
 def answer_question(question: str) -> Any:
     """Answers an arbitrary question about Acme Appliances order ledger."""
@@ -364,10 +406,13 @@ if router is not None:
             if not question:
                 return JSONResponse(status_code=400, content={"error": "Field 'question' is required"})
 
+            print(f"[Q15 REQUEST] {question}", flush=True)
             ans = answer_question(question)
+            print(f"[Q15 RESULT] {ans}", flush=True)
             return {"answer": ans}
         except Exception as e:
             logger.error(f"Error answering question: {e}")
+            print(f"[Q15 ERROR] question='{question}' error={e}", flush=True)
             return JSONResponse(status_code=500, content={"error": str(e)})
 
     @router.get("/ledger")
