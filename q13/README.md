@@ -37,3 +37,4 @@ termlog verification
 The submission archive `submission.tar.gz` contains:
 - `demo.cast` (recorded terminal session)
 - `demo.cast.jwt` (cryptographic signature proving user identity)
+
